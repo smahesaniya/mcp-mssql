@@ -1,78 +1,48 @@
-# mcp-mssql MCP Server
+# mcp-mssql
 
-MCP for SQL Server
+This MCP server allows you to execute SQL queries against a Microsoft SQL Server database. It only allows SELECT queries.
 
-This is a TypeScript-based MCP server that implements a simple notes system. It demonstrates core MCP concepts by providing:
+## Setup
 
-- Resources representing text notes with URIs and metadata
-- Tools for creating new notes
-- Prompts for generating summaries of notes
+To use this server, you need to set the following environment variables:
 
-## Features
+*   `MSSQL_SERVER`: The server address (default: `localhost`)
+*   `MSSQL_PORT`: The server port (default: `1433`)
+*   `MSSQL_USER`: The username to connect to the database (default: `sa`)
+*   `MSSQL_PASSWORD`: The password to connect to the database (default: `your_password`)
+*   `MSSQL_DATABASE`: The database to connect to (default: `your_database`)
 
-### Resources
-- List and access notes via `note://` URIs
-- Each note has a title, content and metadata
-- Plain text mime type for simple content access
-
-### Tools
-- `create_note` - Create new text notes
-  - Takes title and content as required parameters
-  - Stores note in server state
-
-### Prompts
-- `summarize_notes` - Generate a summary of all stored notes
-  - Includes all note contents as embedded resources
-  - Returns structured prompt for LLM summarization
-
-## Development
-
-Install dependencies:
-```bash
-npm install
-```
-
-Build the server:
-```bash
-npm run build
-```
-
-For development with auto-rebuild:
-```bash
-npm run watch
-```
-
-## Installation
-
-To use with Claude Desktop, add the server config:
-
-Before using the server, you need to configure the SQL Server connection. You can do this by setting the following environment variables in the server config:
-
-- `MSSQL_SERVER`: The SQL Server host.
-- `MSSQL_USER`: The SQL Server user.
-- `MSSQL_PASSWORD`: The SQL Server password.
-- `MSSQL_DATABASE`: The SQL Server database.
-
-
-On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+You also need to add the MCP server configuration to the settings file located at 'c:\Users\Sajid\AppData\Roaming\Code\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json'. The settings file may have other MCP servers already configured, so you would read it first and then add your new server to the existing `mcpServers` object.
 
 ```json
 {
   "mcpServers": {
     "mcp-mssql": {
-      "command": "/path/to/mcp-mssql/build/index.js"
+      "command": "node",
+      "args": ["/path/to/mcp-mssql/build/index.js"],
+      "env": {
+        "MSSQL_SERVER": "localhost",
+        "MSSQL_PORT": "1433",
+        "MSSQL_USER": "sa",
+        "MSSQL_PASSWORD": "your_password",
+        "MSSQL_DATABASE": "your_database"
+      }
     }
   }
 }
 ```
 
-### Debugging
+(Note: the user may also ask you to install the MCP server to the Claude desktop app, in which case you would read then modify `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS for example. It follows the same format of a top level `mcpServers` object.)
 
-Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:
+## Usage
 
-```bash
-npm run inspector
-```
+To use the server, you can call the `execute_query` tool with a SQL query as input. For example:
 
-The Inspector will provide a URL to access debugging tools in your browser.
+```json
+{
+  "server_name": "mcp-mssql",
+  "tool_name": "execute_query",
+  "arguments": {
+    "query": "SELECT * FROM your_table"
+  }
+}
